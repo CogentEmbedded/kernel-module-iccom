@@ -28,6 +28,7 @@
 #include <linux/wait.h>
 #include <linux/interrupt.h>
 #include <linux/delay.h>
+#include <linux/version.h>
 
 #include "iccom.h"
 #include "iccom_core.h"
@@ -354,8 +355,12 @@ static ssize_t iccom_drv_read(struct iccom_channel *channel,
 			tgt_addr = (iccom_comm->cta_addr +
 				((cta_sw + ICCOM_CTA_SBUF_NUM) *
 					ICCOM_BUF_MAX_SIZE));
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+			ret_access = access_ok(cmd->buf, cmd->count);
+#else
 			ret_access = access_ok(VERIFY_WRITE, cmd->buf,
 					cmd->count);
+#endif
 			if (ret_access != 0) {
 				dev_dbg(channel->iccom->dev,
 					"copy_to_user route\n");
